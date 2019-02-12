@@ -1057,6 +1057,7 @@ table {
           
   <ul>
     <li class="mono"><a href="#thinkland_rpi_car.Car.__init__">__init__</a></li>
+    <li class="mono"><a href="#thinkland_rpi_car.Car.demo_cruising">demo_cruising</a></li>
     <li class="mono"><a href="#thinkland_rpi_car.Car.distance_from_obstacle">distance_from_obstacle</a></li>
     <li class="mono"><a href="#thinkland_rpi_car.Car.init">init</a></li>
     <li class="mono"><a href="#thinkland_rpi_car.Car.led_light">led_light</a></li>
@@ -1488,45 +1489,51 @@ table {
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
 
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">demo_cruising</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Demonstrates a cruising car that avoids obstacles in a room</span>
+
+<span class="sd">        * Use infrared sensors and ultrasonic sensor to gauge obstacles</span>
+<span class="sd">        * Use LED lights to indicate running/turning decisions</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">car</span> <span class="o">=</span> <span class="n">Car</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">car</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="n">obstacle_status_from_infrared</span> <span class="o">=</span> <span class="n">car</span><span class="o">.</span><span class="n">obstacle_status_from_infrared</span><span class="p">()</span>
+                <span class="n">should_turn</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">if</span> <span class="n">obstacle_status_from_infrared</span> <span class="o">==</span> <span class="s1">&#39;clear&#39;</span><span class="p">:</span>
+                    <span class="n">should_turn</span> <span class="o">=</span> <span class="bp">False</span>
+                    <span class="n">obstacle_status_from_ultrasound</span> <span class="o">=</span> \
+                        <span class="n">car</span><span class="o">.</span><span class="n">obstacle_status_from_ultrasound</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">obstacle_status_from_ultrasound</span> <span class="o">==</span> <span class="s1">&#39;clear&#39;</span><span class="p">:</span>
+                        <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;green&#39;</span><span class="p">)</span>
+                        <span class="n">car</span><span class="o">.</span><span class="n">run_forward</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">obstacle_status_from_ultrasound</span> <span class="o">==</span> <span class="s1">&#39;approaching_obstacle&#39;</span><span class="p">:</span>
+                        <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;yellow&#39;</span><span class="p">)</span>
+                        <span class="n">car</span><span class="o">.</span><span class="n">run_forward</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">should_turn</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">if</span> <span class="n">should_turn</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">run_reverse</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">obstacle_status_from_infrared</span> <span class="o">==</span> <span class="s1">&#39;only_right_blocked&#39;</span><span class="p">:</span>
+                        <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;purple&#39;</span><span class="p">)</span>
+                        <span class="n">car</span><span class="o">.</span><span class="n">spin_left</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+                    <span class="k">elif</span> <span class="n">obstacle_status_from_infrared</span> <span class="o">==</span> <span class="s1">&#39;only_left_blocked&#39;</span><span class="p">:</span>
+                        <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;cyan&#39;</span><span class="p">)</span>
+                        <span class="n">car</span><span class="o">.</span><span class="n">spin_right</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+                        <span class="n">car</span><span class="o">.</span><span class="n">spin_right</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+            <span class="n">car</span><span class="o">.</span><span class="n">stop_completely</span><span class="p">()</span>
+
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Demonstrates a cruising car that avoids obstacles in a room.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-    <span class="n">car</span> <span class="o">=</span> <span class="n">Car</span><span class="p">()</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">car</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
-
-        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
-            <span class="n">obstacle_status_from_infrared</span> <span class="o">=</span> <span class="n">car</span><span class="o">.</span><span class="n">obstacle_status_from_infrared</span><span class="p">()</span>
-            <span class="n">should_turn</span> <span class="o">=</span> <span class="bp">True</span>
-            <span class="k">if</span> <span class="n">obstacle_status_from_infrared</span> <span class="o">==</span> <span class="s1">&#39;clear&#39;</span><span class="p">:</span>
-                <span class="n">should_turn</span> <span class="o">=</span> <span class="bp">False</span>
-                <span class="n">obstacle_status_from_ultrasound</span> <span class="o">=</span> \
-                    <span class="n">car</span><span class="o">.</span><span class="n">obstacle_status_from_ultrasound</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">obstacle_status_from_ultrasound</span> <span class="o">==</span> <span class="s1">&#39;clear&#39;</span><span class="p">:</span>
-                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;green&#39;</span><span class="p">)</span>
-                    <span class="n">car</span><span class="o">.</span><span class="n">run_forward</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">obstacle_status_from_ultrasound</span> <span class="o">==</span> <span class="s1">&#39;approaching_obstacle&#39;</span><span class="p">:</span>
-                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;yellow&#39;</span><span class="p">)</span>
-                    <span class="n">car</span><span class="o">.</span><span class="n">run_forward</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">should_turn</span> <span class="o">=</span> <span class="bp">True</span>
-            <span class="k">if</span> <span class="n">should_turn</span><span class="p">:</span>
-                <span class="n">car</span><span class="o">.</span><span class="n">run_reverse</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">obstacle_status_from_infrared</span> <span class="o">==</span> <span class="s1">&#39;only_right_blocked&#39;</span><span class="p">:</span>
-                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;purple&#39;</span><span class="p">)</span>
-                    <span class="n">car</span><span class="o">.</span><span class="n">spin_left</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
-                <span class="k">elif</span> <span class="n">obstacle_status_from_infrared</span> <span class="o">==</span> <span class="s1">&#39;only_left_blocked&#39;</span><span class="p">:</span>
-                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;cyan&#39;</span><span class="p">)</span>
-                    <span class="n">car</span><span class="o">.</span><span class="n">spin_right</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
-                    <span class="n">car</span><span class="o">.</span><span class="n">spin_right</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
-    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
-        <span class="n">car</span><span class="o">.</span><span class="n">stop_completely</span><span class="p">()</span>
-
+    <span class="n">Car</span><span class="o">.</span><span class="n">demo_cruising</span><span class="p">()</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
@@ -1548,47 +1555,11 @@ table {
 
     
   
-    <div class="desc"><p>Demonstrates a cruising car that avoids obstacles in a room.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-thinkland_rpi_car.main', this);">Show source &equiv;</a></p>
   <div id="source-thinkland_rpi_car.main" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Demonstrates a cruising car that avoids obstacles in a room.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-    <span class="n">car</span> <span class="o">=</span> <span class="n">Car</span><span class="p">()</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">car</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
-
-        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
-            <span class="n">obstacle_status_from_infrared</span> <span class="o">=</span> <span class="n">car</span><span class="o">.</span><span class="n">obstacle_status_from_infrared</span><span class="p">()</span>
-            <span class="n">should_turn</span> <span class="o">=</span> <span class="bp">True</span>
-            <span class="k">if</span> <span class="n">obstacle_status_from_infrared</span> <span class="o">==</span> <span class="s1">&#39;clear&#39;</span><span class="p">:</span>
-                <span class="n">should_turn</span> <span class="o">=</span> <span class="bp">False</span>
-                <span class="n">obstacle_status_from_ultrasound</span> <span class="o">=</span> \
-                    <span class="n">car</span><span class="o">.</span><span class="n">obstacle_status_from_ultrasound</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">obstacle_status_from_ultrasound</span> <span class="o">==</span> <span class="s1">&#39;clear&#39;</span><span class="p">:</span>
-                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;green&#39;</span><span class="p">)</span>
-                    <span class="n">car</span><span class="o">.</span><span class="n">run_forward</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">obstacle_status_from_ultrasound</span> <span class="o">==</span> <span class="s1">&#39;approaching_obstacle&#39;</span><span class="p">:</span>
-                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;yellow&#39;</span><span class="p">)</span>
-                    <span class="n">car</span><span class="o">.</span><span class="n">run_forward</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">should_turn</span> <span class="o">=</span> <span class="bp">True</span>
-            <span class="k">if</span> <span class="n">should_turn</span><span class="p">:</span>
-                <span class="n">car</span><span class="o">.</span><span class="n">run_reverse</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">obstacle_status_from_infrared</span> <span class="o">==</span> <span class="s1">&#39;only_right_blocked&#39;</span><span class="p">:</span>
-                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;purple&#39;</span><span class="p">)</span>
-                    <span class="n">car</span><span class="o">.</span><span class="n">spin_left</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
-                <span class="k">elif</span> <span class="n">obstacle_status_from_infrared</span> <span class="o">==</span> <span class="s1">&#39;only_left_blocked&#39;</span><span class="p">:</span>
-                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;cyan&#39;</span><span class="p">)</span>
-                    <span class="n">car</span><span class="o">.</span><span class="n">spin_right</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
-                    <span class="n">car</span><span class="o">.</span><span class="n">spin_right</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
-    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
-        <span class="n">car</span><span class="o">.</span><span class="n">stop_completely</span><span class="p">()</span>
+    <span class="n">Car</span><span class="o">.</span><span class="n">demo_cruising</span><span class="p">()</span>
 </pre></div>
 
   </div>
@@ -2007,6 +1978,48 @@ following I/O components:</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">demo_cruising</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Demonstrates a cruising car that avoids obstacles in a room</span>
+
+<span class="sd">        * Use infrared sensors and ultrasonic sensor to gauge obstacles</span>
+<span class="sd">        * Use LED lights to indicate running/turning decisions</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">car</span> <span class="o">=</span> <span class="n">Car</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">car</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="n">obstacle_status_from_infrared</span> <span class="o">=</span> <span class="n">car</span><span class="o">.</span><span class="n">obstacle_status_from_infrared</span><span class="p">()</span>
+                <span class="n">should_turn</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">if</span> <span class="n">obstacle_status_from_infrared</span> <span class="o">==</span> <span class="s1">&#39;clear&#39;</span><span class="p">:</span>
+                    <span class="n">should_turn</span> <span class="o">=</span> <span class="bp">False</span>
+                    <span class="n">obstacle_status_from_ultrasound</span> <span class="o">=</span> \
+                        <span class="n">car</span><span class="o">.</span><span class="n">obstacle_status_from_ultrasound</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">obstacle_status_from_ultrasound</span> <span class="o">==</span> <span class="s1">&#39;clear&#39;</span><span class="p">:</span>
+                        <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;green&#39;</span><span class="p">)</span>
+                        <span class="n">car</span><span class="o">.</span><span class="n">run_forward</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">obstacle_status_from_ultrasound</span> <span class="o">==</span> <span class="s1">&#39;approaching_obstacle&#39;</span><span class="p">:</span>
+                        <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;yellow&#39;</span><span class="p">)</span>
+                        <span class="n">car</span><span class="o">.</span><span class="n">run_forward</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">should_turn</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">if</span> <span class="n">should_turn</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">run_reverse</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">obstacle_status_from_infrared</span> <span class="o">==</span> <span class="s1">&#39;only_right_blocked&#39;</span><span class="p">:</span>
+                        <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;purple&#39;</span><span class="p">)</span>
+                        <span class="n">car</span><span class="o">.</span><span class="n">spin_left</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+                    <span class="k">elif</span> <span class="n">obstacle_status_from_infrared</span> <span class="o">==</span> <span class="s1">&#39;only_left_blocked&#39;</span><span class="p">:</span>
+                        <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;cyan&#39;</span><span class="p">)</span>
+                        <span class="n">car</span><span class="o">.</span><span class="n">spin_right</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+                        <span class="n">car</span><span class="o">.</span><span class="n">spin_right</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+            <span class="n">car</span><span class="o">.</span><span class="n">stop_completely</span><span class="p">()</span>
 </pre></div>
 
   </div>
@@ -2181,6 +2194,69 @@ following I/O components:</p>
 <span class="sd">    Initialize the Car</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="thinkland_rpi_car.Car.demo_cruising">
+    <p>def <span class="ident">demo_cruising</span>(</p><p>)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Demonstrates a cruising car that avoids obstacles in a room</p>
+<ul>
+<li>Use infrared sensors and ultrasonic sensor to gauge obstacles</li>
+<li>Use LED lights to indicate running/turning decisions</li>
+</ul></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-thinkland_rpi_car.Car.demo_cruising', this);">Show source &equiv;</a></p>
+  <div id="source-thinkland_rpi_car.Car.demo_cruising" class="source">
+    <div class="codehilite"><pre><span></span><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">demo_cruising</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Demonstrates a cruising car that avoids obstacles in a room</span>
+<span class="sd">    * Use infrared sensors and ultrasonic sensor to gauge obstacles</span>
+<span class="sd">    * Use LED lights to indicate running/turning decisions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">car</span> <span class="o">=</span> <span class="n">Car</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">car</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">obstacle_status_from_infrared</span> <span class="o">=</span> <span class="n">car</span><span class="o">.</span><span class="n">obstacle_status_from_infrared</span><span class="p">()</span>
+            <span class="n">should_turn</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="k">if</span> <span class="n">obstacle_status_from_infrared</span> <span class="o">==</span> <span class="s1">&#39;clear&#39;</span><span class="p">:</span>
+                <span class="n">should_turn</span> <span class="o">=</span> <span class="bp">False</span>
+                <span class="n">obstacle_status_from_ultrasound</span> <span class="o">=</span> \
+                    <span class="n">car</span><span class="o">.</span><span class="n">obstacle_status_from_ultrasound</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">obstacle_status_from_ultrasound</span> <span class="o">==</span> <span class="s1">&#39;clear&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;green&#39;</span><span class="p">)</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">run_forward</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">obstacle_status_from_ultrasound</span> <span class="o">==</span> <span class="s1">&#39;approaching_obstacle&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;yellow&#39;</span><span class="p">)</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">run_forward</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">should_turn</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="k">if</span> <span class="n">should_turn</span><span class="p">:</span>
+                <span class="n">car</span><span class="o">.</span><span class="n">run_reverse</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">obstacle_status_from_infrared</span> <span class="o">==</span> <span class="s1">&#39;only_right_blocked&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;purple&#39;</span><span class="p">)</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">spin_left</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">obstacle_status_from_infrared</span> <span class="o">==</span> <span class="s1">&#39;only_left_blocked&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;cyan&#39;</span><span class="p">)</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">spin_right</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">spin_right</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="n">car</span><span class="o">.</span><span class="n">stop_completely</span><span class="p">()</span>
 </pre></div>
 
   </div>

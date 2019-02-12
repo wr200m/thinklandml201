@@ -393,45 +393,51 @@ class Car:
         else:
             self._led_light(GPIO.LOW, GPIO.LOW, GPIO.LOW)
 
+    @staticmethod
+    def demo_cruising():
+        """
+        Demonstrates a cruising car that avoids obstacles in a room
+
+        * Use infrared sensors and ultrasonic sensor to gauge obstacles
+        * Use LED lights to indicate running/turning decisions
+        """
+        time.sleep(2)
+        car = Car()
+        try:
+            car.init()
+
+            while True:
+                obstacle_status_from_infrared = car.obstacle_status_from_infrared()
+                should_turn = True
+                if obstacle_status_from_infrared == 'clear':
+                    should_turn = False
+                    obstacle_status_from_ultrasound = \
+                        car.obstacle_status_from_ultrasound()
+                    if obstacle_status_from_ultrasound == 'clear':
+                        car.led_light('green')
+                        car.run_forward(speed=10)
+                    elif obstacle_status_from_ultrasound == 'approaching_obstacle':
+                        car.led_light('yellow')
+                        car.run_forward(speed=5)
+                    else:
+                        should_turn = True
+                if should_turn:
+                    car.run_reverse(duration=0.02)
+                    if obstacle_status_from_infrared == 'only_right_blocked':
+                        car.led_light('purple')
+                        car.spin_left(duration=random.uniform(0.25, 1.0))
+                    elif obstacle_status_from_infrared == 'only_left_blocked':
+                        car.led_light('cyan')
+                        car.spin_right(duration=random.uniform(0.25, 1.0))
+                    else:
+                        car.led_light('red')
+                        car.spin_right(duration=random.uniform(0.25, 1.0))
+        except KeyboardInterrupt:
+            car.stop_completely()
+
 
 def main():
-    """
-    Demonstrates a cruising car that avoids obstacles in a room.
-    """
-    time.sleep(2)
-    car = Car()
-    try:
-        car.init()
-
-        while True:
-            obstacle_status_from_infrared = car.obstacle_status_from_infrared()
-            should_turn = True
-            if obstacle_status_from_infrared == 'clear':
-                should_turn = False
-                obstacle_status_from_ultrasound = \
-                    car.obstacle_status_from_ultrasound()
-                if obstacle_status_from_ultrasound == 'clear':
-                    car.led_light('green')
-                    car.run_forward(speed=10)
-                elif obstacle_status_from_ultrasound == 'approaching_obstacle':
-                    car.led_light('yellow')
-                    car.run_forward(speed=5)
-                else:
-                    should_turn = True
-            if should_turn:
-                car.run_reverse(duration=0.02)
-                if obstacle_status_from_infrared == 'only_right_blocked':
-                    car.led_light('purple')
-                    car.spin_left(duration=random.uniform(0.25, 1.0))
-                elif obstacle_status_from_infrared == 'only_left_blocked':
-                    car.led_light('cyan')
-                    car.spin_right(duration=random.uniform(0.25, 1.0))
-                else:
-                    car.led_light('red')
-                    car.spin_right(duration=random.uniform(0.25, 1.0))
-    except KeyboardInterrupt:
-        car.stop_completely()
-
+    Car.demo_cruising()
 
 if __name__ == '__main__':
     main()
