@@ -1341,10 +1341,10 @@ table {
 <span class="sd">        ----------</span>
 <span class="sd">        * dir : str</span>
 <span class="sd">            - one of [&#39;left&#39;, &#39;center&#39;, &#39;right&#39;]</span>
-<span class="sd">            - if dir == &#39;degree&#39;, use &lt;degree&gt; parameter</span>
+<span class="sd">            - if dir == &#39;degree&#39;, use degree parameter</span>
 <span class="sd">        * degrees : int</span>
 <span class="sd">            - [0, 180]</span>
-<span class="sd">            - if &lt;dir&gt; is specified other than &#39;degree&#39;, this is ignored</span>
+<span class="sd">            - if dir is specified other than &#39;degree&#39;, this is ignored</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># 0 degrees :  duty cycle =  2.5% of 20ms</span>
         <span class="c1"># 90 degrees:  duty cycle =  7.5% of 20ms</span>
@@ -1470,7 +1470,6 @@ table {
 <span class="sd">            - one of [&#39;red&#39;, &#39;green&#39;, &#39;blue&#39;,</span>
 <span class="sd">                      &#39;yellow&#39;, &#39;cyan&#39;, &#39;purple&#39;</span>
 <span class="sd">                      &#39;white&#39;, &#39;off&#39;]</span>
-<span class="sd">        * blink : boolean</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;red&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
@@ -1831,10 +1830,10 @@ following I/O components:</p>
 <span class="sd">        ----------</span>
 <span class="sd">        * dir : str</span>
 <span class="sd">            - one of [&#39;left&#39;, &#39;center&#39;, &#39;right&#39;]</span>
-<span class="sd">            - if dir == &#39;degree&#39;, use &lt;degree&gt; parameter</span>
+<span class="sd">            - if dir == &#39;degree&#39;, use degree parameter</span>
 <span class="sd">        * degrees : int</span>
 <span class="sd">            - [0, 180]</span>
-<span class="sd">            - if &lt;dir&gt; is specified other than &#39;degree&#39;, this is ignored</span>
+<span class="sd">            - if dir is specified other than &#39;degree&#39;, this is ignored</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># 0 degrees :  duty cycle =  2.5% of 20ms</span>
         <span class="c1"># 90 degrees:  duty cycle =  7.5% of 20ms</span>
@@ -1960,7 +1959,6 @@ following I/O components:</p>
 <span class="sd">            - one of [&#39;red&#39;, &#39;green&#39;, &#39;blue&#39;,</span>
 <span class="sd">                      &#39;yellow&#39;, &#39;cyan&#39;, &#39;purple&#39;</span>
 <span class="sd">                      &#39;white&#39;, &#39;off&#39;]</span>
-<span class="sd">        * blink : boolean</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;red&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
@@ -2386,7 +2384,6 @@ surfaces is difficult to measure.</p>
           'white', 'off']</li>
 </ul>
 </li>
-<li>blink : boolean</li>
 </ul></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-thinkland_rpi_car.Car.led_light', this);">Show source &equiv;</a></p>
@@ -2400,7 +2397,6 @@ surfaces is difficult to measure.</p>
 <span class="sd">        - one of [&#39;red&#39;, &#39;green&#39;, &#39;blue&#39;,</span>
 <span class="sd">                  &#39;yellow&#39;, &#39;cyan&#39;, &#39;purple&#39;</span>
 <span class="sd">                  &#39;white&#39;, &#39;off&#39;]</span>
-<span class="sd">    * blink : boolean</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;red&#39;</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
@@ -2909,12 +2905,12 @@ one of ['center', 'left', 'right']. Default is 'center'</li>
 <ul>
 <li>dir : str<ul>
 <li>one of ['left', 'center', 'right']</li>
-<li>if dir == 'degree', use <degree> parameter</li>
+<li>if dir == 'degree', use degree parameter</li>
 </ul>
 </li>
 <li>degrees : int<ul>
 <li>[0, 180]</li>
-<li>if <dir> is specified other than 'degree', this is ignored</li>
+<li>if dir is specified other than 'degree', this is ignored</li>
 </ul>
 </li>
 </ul></div>
@@ -2928,10 +2924,10 @@ one of ['center', 'left', 'right']. Default is 'center'</li>
 <span class="sd">    ----------</span>
 <span class="sd">    * dir : str</span>
 <span class="sd">        - one of [&#39;left&#39;, &#39;center&#39;, &#39;right&#39;]</span>
-<span class="sd">        - if dir == &#39;degree&#39;, use &lt;degree&gt; parameter</span>
+<span class="sd">        - if dir == &#39;degree&#39;, use degree parameter</span>
 <span class="sd">    * degrees : int</span>
 <span class="sd">        - [0, 180]</span>
-<span class="sd">        - if &lt;dir&gt; is specified other than &#39;degree&#39;, this is ignored</span>
+<span class="sd">        - if dir is specified other than &#39;degree&#39;, this is ignored</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># 0 degrees :  duty cycle =  2.5% of 20ms</span>
     <span class="c1"># 90 degrees:  duty cycle =  7.5% of 20ms</span>

@@ -245,10 +245,10 @@ class Car:
         ----------
         * dir : str
             - one of ['left', 'center', 'right']
-            - if dir == 'degree', use <degree> parameter
+            - if dir == 'degree', use degree parameter
         * degrees : int
             - [0, 180]
-            - if <dir> is specified other than 'degree', this is ignored
+            - if dir is specified other than 'degree', this is ignored
         """
         # 0 degrees :  duty cycle =  2.5% of 20ms
         # 90 degrees:  duty cycle =  7.5% of 20ms
@@ -374,7 +374,6 @@ class Car:
             - one of ['red', 'green', 'blue',
                       'yellow', 'cyan', 'purple'
                       'white', 'off']
-        * blink : boolean
         """
         if color == 'red':
             self._led_light(GPIO.HIGH, GPIO.LOW, GPIO.LOW)
