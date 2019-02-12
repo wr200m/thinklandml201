@@ -246,8 +246,8 @@ class Car:
         * dir : str
             - one of ['left', 'center', 'right']
             - if dir == 'degree', use degree parameter
-        * degrees : int
-            - [0, 180]
+        * degree : int
+            - the angle to turn, measured in degree [0, 180]
             - if dir is specified other than 'degree', this is ignored
         """
         # 0 degrees :  duty cycle =  2.5% of 20ms
