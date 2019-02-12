@@ -1057,8 +1057,11 @@ table {
           
   <ul>
     <li class="mono"><a href="#thinkland_rpi_car.Car.__init__">__init__</a></li>
+    <li class="mono"><a href="#thinkland_rpi_car.Car.distance_from_obstacle">distance_from_obstacle</a></li>
     <li class="mono"><a href="#thinkland_rpi_car.Car.init">init</a></li>
-    <li class="mono"><a href="#thinkland_rpi_car.Car.obstacle_status">obstacle_status</a></li>
+    <li class="mono"><a href="#thinkland_rpi_car.Car.led_light">led_light</a></li>
+    <li class="mono"><a href="#thinkland_rpi_car.Car.obstacle_status_from_infrared">obstacle_status_from_infrared</a></li>
+    <li class="mono"><a href="#thinkland_rpi_car.Car.obstacle_status_from_ultrasound">obstacle_status_from_ultrasound</a></li>
     <li class="mono"><a href="#thinkland_rpi_car.Car.run_forward">run_forward</a></li>
     <li class="mono"><a href="#thinkland_rpi_car.Car.run_reverse">run_reverse</a></li>
     <li class="mono"><a href="#thinkland_rpi_car.Car.spin_left">spin_left</a></li>
@@ -1067,6 +1070,7 @@ table {
     <li class="mono"><a href="#thinkland_rpi_car.Car.stop_completely">stop_completely</a></li>
     <li class="mono"><a href="#thinkland_rpi_car.Car.turn_left">turn_left</a></li>
     <li class="mono"><a href="#thinkland_rpi_car.Car.turn_right">turn_right</a></li>
+    <li class="mono"><a href="#thinkland_rpi_car.Car.turn_servo_ultrasonic">turn_servo_ultrasonic</a></li>
   </ul>
 
         </li>
@@ -1122,6 +1126,13 @@ table {
     <span class="n">PIN_INFRARED_LEFT</span>        <span class="o">=</span> <span class="mi">12</span>
     <span class="n">PIN_INFRARED_RIGHT</span>       <span class="o">=</span> <span class="mi">17</span>
 
+    <span class="n">PIN_SERVO_ULTRASONIC</span>     <span class="o">=</span> <span class="mi">23</span>
+    <span class="n">PIN_ULTRASONIC_TRIG</span>      <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">PIN_ULTRASONIC_ECHO</span>      <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">PIN_LED_R</span>                <span class="o">=</span> <span class="mi">22</span>
+    <span class="n">PIN_LED_G</span>                <span class="o">=</span> <span class="mi">27</span>
+    <span class="n">PIN_LED_B</span>                <span class="o">=</span> <span class="mi">24</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor</span>
@@ -1144,14 +1155,25 @@ table {
         <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_MOTOR_LEFT_SPEED</span><span class="p">,</span>     <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span>
         <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_MOTOR_RIGHT_SPEED</span><span class="p">,</span>    <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span>
 
-        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_INFRARED_LEFT</span><span class="p">,</span>  <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
-        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_INFRARED_RIGHT</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_INFRARED_LEFT</span><span class="p">,</span>        <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_INFRARED_RIGHT</span><span class="p">,</span>       <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
+
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_SERVO_ULTRASONIC</span><span class="p">,</span>     <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_ULTRASONIC_TRIG</span><span class="p">,</span>      <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_ULTRASONIC_ECHO</span><span class="p">,</span>      <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
+
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_LED_R</span><span class="p">,</span>                <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_LED_G</span><span class="p">,</span>                <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_LED_B</span><span class="p">,</span>                <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_left_speed</span>  <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">PWM</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_MOTOR_LEFT_SPEED</span><span class="p">,</span>  <span class="mi">2000</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_right_speed</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">PWM</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_MOTOR_RIGHT_SPEED</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_left_speed</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_right_speed</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_servo_ultrasonic</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">PWM</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_SERVO_ULTRASONIC</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_servo_ultrasonic</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_set_motion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left_forward</span><span class="p">,</span> <span class="n">left_backward</span><span class="p">,</span>
                     <span class="n">right_forward</span><span class="p">,</span> <span class="n">right_backward</span><span class="p">,</span>
@@ -1199,6 +1221,7 @@ table {
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_left_speed</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_right_speed</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_servo_ultrasonic</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
         <span class="n">GPIO</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">run_forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">speed</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
@@ -1309,15 +1332,75 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_motion</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span>
                          <span class="n">speed</span><span class="p">,</span> <span class="n">speed</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">obstacle_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sensor</span><span class="o">=</span><span class="s1">&#39;infrared&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">turn_servo_ultrasonic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="s1">&#39;degree&#39;</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="mi">90</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return obstacle status</span>
+<span class="sd">        Turn the servo for ultrasonic sensor</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        * sensor : str</span>
-<span class="sd">            - The sensor to use</span>
-<span class="sd">            (default=&#39;infrared&#39;. Can be &#39;infrared&#39; or &#39;ultrasonic&#39;)</span>
+<span class="sd">        * dir : str</span>
+<span class="sd">            - one of [&#39;left&#39;, &#39;center&#39;, &#39;right&#39;]</span>
+<span class="sd">            - if dir == &#39;degree&#39;, use &lt;degree&gt; parameter</span>
+<span class="sd">        * degrees : int</span>
+<span class="sd">            - [0, 180]</span>
+<span class="sd">            - if &lt;dir&gt; is specified other than &#39;degree&#39;, this is ignored</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># 0 degrees :  duty cycle =  2.5% of 20ms</span>
+        <span class="c1"># 90 degrees:  duty cycle =  7.5% of 20ms</span>
+        <span class="c1"># 180 degrees: duty cycle = 12.5% of 20ms</span>
+        <span class="k">if</span> <span class="nb">dir</span> <span class="o">==</span> <span class="s1">&#39;center&#39;</span><span class="p">:</span>
+            <span class="n">degree</span> <span class="o">=</span> <span class="mi">90</span>
+        <span class="k">elif</span> <span class="nb">dir</span> <span class="o">==</span> <span class="s1">&#39;right&#39;</span><span class="p">:</span>
+            <span class="n">degree</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">elif</span> <span class="nb">dir</span> <span class="o">==</span> <span class="s1">&#39;left&#39;</span><span class="p">:</span>
+            <span class="n">degree</span> <span class="o">=</span> <span class="mi">180</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>  <span class="c1"># do this for multiple times just to make sure</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_servo_ultrasonic</span><span class="o">.</span><span class="n">ChangeDutyCycle</span><span class="p">(</span><span class="mf">2.5</span> <span class="o">+</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">degree</span><span class="o">/</span><span class="mi">180</span><span class="p">)</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>  <span class="c1"># give enough time to settle</span>
+
+    <span class="k">def</span> <span class="nf">distance_from_obstacle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Measure the distance between ultrasonic sensor and the obstacle</span>
+<span class="sd">        that it faces.</span>
+
+<span class="sd">        The obstacle should have a relatively smooth surface for this</span>
+<span class="sd">        to be effective. Distance to fabric or other sound-absorbing</span>
+<span class="sd">        surfaces is difficult to measure.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        * int</span>
+<span class="sd">            - Measured in centimeters: valid range is 2cm to 400cm</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># set HIGH at TRIG for 15us to trigger the ultrasonic ping</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_ULTRASONIC_TRIG</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.000015</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_ULTRASONIC_TRIG</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
+
+        <span class="c1"># wait until echo is received</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_ULTRASONIC_ECHO</span><span class="p">):</span>
+            <span class="k">pass</span>
+
+        <span class="c1"># duration of the ECHO being high is how long the sound travels</span>
+        <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">while</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_ULTRASONIC_ECHO</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">distance</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">t2</span> <span class="o">-</span> <span class="n">t1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">343</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">t2</span><span class="o">-</span><span class="n">t1</span><span class="p">,</span> <span class="n">distance</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">distance</span>
+
+    <span class="k">def</span> <span class="nf">obstacle_status_from_infrared</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return obstacle status obtained by infrared sensors that</span>
+<span class="sd">        are situated at the left front and right front of the Car.</span>
+<span class="sd">        The infrared sensors are located on the lower deck, so they</span>
+<span class="sd">        have a lower view than the ultrasonic sensor.</span>
+
+<span class="sd">        Indicates blockage by obstacle &lt; 20cm away.</span>
+<span class="sd">        Depending on sensitivity of sensors, the distance of obstacles</span>
+<span class="sd">        sometimes needs to be as short as 15cm for effective detection</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1329,13 +1412,81 @@ table {
         <span class="n">is_right_clear</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_INFRARED_RIGHT</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">is_left_clear</span> <span class="ow">and</span> <span class="n">is_right_clear</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;clear&#39;</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;clear&#39;</span>
         <span class="k">elif</span> <span class="n">is_left_clear</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_right_clear</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;only_right_blocked&#39;</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;only_right_blocked&#39;</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="n">is_left_clear</span> <span class="ow">and</span> <span class="n">is_right_clear</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;only_left_blocked&#39;</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;only_left_blocked&#39;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;blocked&#39;</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;blocked&#39;</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Infrared status = {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">status</span>
+
+    <span class="k">def</span> <span class="nf">obstacle_status_from_ultrasound</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return obstacle status obtained by ultrasonic sensor that is</span>
+<span class="sd">        situated in the front of the Car. The ultrasonic sensor is</span>
+<span class="sd">        located in the upper deck so it has a higher view than the</span>
+<span class="sd">        infrared sensors.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        * dir : str</span>
+<span class="sd">            - set the ultrasonic sensor to face a direction,</span>
+<span class="sd">            one of [&#39;center&#39;, &#39;left&#39;, &#39;right&#39;]. Default is &#39;center&#39;</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        * str</span>
+<span class="sd">            - &#39;blocked&#39; if distance &lt;= 20cm</span>
+<span class="sd">            - &#39;approaching_obstacle&#39; if distance is (20, 50]</span>
+<span class="sd">            - &#39;clear&#39; if distance &gt; 50cm</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">turn_servo_ultrasonic</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span>
+        <span class="n">distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_from_obstacle</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">distance</span> <span class="o">&lt;=</span> <span class="mi">20</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;blocked&#39;</span>
+        <span class="k">elif</span> <span class="n">distance</span> <span class="o">&lt;=</span> <span class="mi">50</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;approaching_obstacle&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;clear&#39;</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Ultrasound status = {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">status</span>
+
+    <span class="k">def</span> <span class="nf">_led_light</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_LED_R</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_LED_G</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_LED_B</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">led_light</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Shine LED light</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        * color : str</span>
+<span class="sd">            - one of [&#39;red&#39;, &#39;green&#39;, &#39;blue&#39;,</span>
+<span class="sd">                      &#39;yellow&#39;, &#39;cyan&#39;, &#39;purple&#39;</span>
+<span class="sd">                      &#39;white&#39;, &#39;off&#39;]</span>
+<span class="sd">        * blink : boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;red&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;green&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;blue&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;yellow&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;cyan&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;purple&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;white&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
@@ -1348,17 +1499,30 @@ table {
         <span class="n">car</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
 
         <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
-            <span class="n">obstacle</span> <span class="o">=</span> <span class="n">car</span><span class="o">.</span><span class="n">obstacle_status</span><span class="p">()</span>
-
-            <span class="k">if</span> <span class="n">obstacle</span> <span class="o">==</span> <span class="s1">&#39;clear&#39;</span><span class="p">:</span>
-                <span class="n">car</span><span class="o">.</span><span class="n">run_forward</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
+            <span class="n">obstacle_status_from_infrared</span> <span class="o">=</span> <span class="n">car</span><span class="o">.</span><span class="n">obstacle_status_from_infrared</span><span class="p">()</span>
+            <span class="n">should_turn</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="k">if</span> <span class="n">obstacle_status_from_infrared</span> <span class="o">==</span> <span class="s1">&#39;clear&#39;</span><span class="p">:</span>
+                <span class="n">should_turn</span> <span class="o">=</span> <span class="bp">False</span>
+                <span class="n">obstacle_status_from_ultrasound</span> <span class="o">=</span> \
+                    <span class="n">car</span><span class="o">.</span><span class="n">obstacle_status_from_ultrasound</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">obstacle_status_from_ultrasound</span> <span class="o">==</span> <span class="s1">&#39;clear&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;green&#39;</span><span class="p">)</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">run_forward</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">obstacle_status_from_ultrasound</span> <span class="o">==</span> <span class="s1">&#39;approaching_obstacle&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;yellow&#39;</span><span class="p">)</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">run_forward</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">should_turn</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="k">if</span> <span class="n">should_turn</span><span class="p">:</span>
                 <span class="n">car</span><span class="o">.</span><span class="n">run_reverse</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">obstacle</span> <span class="o">==</span> <span class="s1">&#39;only_right_blocked&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">obstacle_status_from_infrared</span> <span class="o">==</span> <span class="s1">&#39;only_right_blocked&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;purple&#39;</span><span class="p">)</span>
                     <span class="n">car</span><span class="o">.</span><span class="n">spin_left</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
-                <span class="k">elif</span> <span class="n">obstacle</span> <span class="o">==</span> <span class="s1">&#39;only_left_blocked&#39;</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="n">obstacle_status_from_infrared</span> <span class="o">==</span> <span class="s1">&#39;only_left_blocked&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;cyan&#39;</span><span class="p">)</span>
                     <span class="n">car</span><span class="o">.</span><span class="n">spin_right</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
                 <span class="k">else</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
                     <span class="n">car</span><span class="o">.</span><span class="n">spin_right</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
     <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
         <span class="n">car</span><span class="o">.</span><span class="n">stop_completely</span><span class="p">()</span>
@@ -1398,17 +1562,30 @@ table {
         <span class="n">car</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
 
         <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
-            <span class="n">obstacle</span> <span class="o">=</span> <span class="n">car</span><span class="o">.</span><span class="n">obstacle_status</span><span class="p">()</span>
-
-            <span class="k">if</span> <span class="n">obstacle</span> <span class="o">==</span> <span class="s1">&#39;clear&#39;</span><span class="p">:</span>
-                <span class="n">car</span><span class="o">.</span><span class="n">run_forward</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
+            <span class="n">obstacle_status_from_infrared</span> <span class="o">=</span> <span class="n">car</span><span class="o">.</span><span class="n">obstacle_status_from_infrared</span><span class="p">()</span>
+            <span class="n">should_turn</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="k">if</span> <span class="n">obstacle_status_from_infrared</span> <span class="o">==</span> <span class="s1">&#39;clear&#39;</span><span class="p">:</span>
+                <span class="n">should_turn</span> <span class="o">=</span> <span class="bp">False</span>
+                <span class="n">obstacle_status_from_ultrasound</span> <span class="o">=</span> \
+                    <span class="n">car</span><span class="o">.</span><span class="n">obstacle_status_from_ultrasound</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">obstacle_status_from_ultrasound</span> <span class="o">==</span> <span class="s1">&#39;clear&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;green&#39;</span><span class="p">)</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">run_forward</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">obstacle_status_from_ultrasound</span> <span class="o">==</span> <span class="s1">&#39;approaching_obstacle&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;yellow&#39;</span><span class="p">)</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">run_forward</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">should_turn</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="k">if</span> <span class="n">should_turn</span><span class="p">:</span>
                 <span class="n">car</span><span class="o">.</span><span class="n">run_reverse</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">obstacle</span> <span class="o">==</span> <span class="s1">&#39;only_right_blocked&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">obstacle_status_from_infrared</span> <span class="o">==</span> <span class="s1">&#39;only_right_blocked&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;purple&#39;</span><span class="p">)</span>
                     <span class="n">car</span><span class="o">.</span><span class="n">spin_left</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
-                <span class="k">elif</span> <span class="n">obstacle</span> <span class="o">==</span> <span class="s1">&#39;only_left_blocked&#39;</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="n">obstacle_status_from_infrared</span> <span class="o">==</span> <span class="s1">&#39;only_left_blocked&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;cyan&#39;</span><span class="p">)</span>
                     <span class="n">car</span><span class="o">.</span><span class="n">spin_right</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
                 <span class="k">else</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
                     <span class="n">car</span><span class="o">.</span><span class="n">spin_right</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
     <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
         <span class="n">car</span><span class="o">.</span><span class="n">stop_completely</span><span class="p">()</span>
@@ -1469,6 +1646,13 @@ following I/O components:</p>
     <span class="n">PIN_INFRARED_LEFT</span>        <span class="o">=</span> <span class="mi">12</span>
     <span class="n">PIN_INFRARED_RIGHT</span>       <span class="o">=</span> <span class="mi">17</span>
 
+    <span class="n">PIN_SERVO_ULTRASONIC</span>     <span class="o">=</span> <span class="mi">23</span>
+    <span class="n">PIN_ULTRASONIC_TRIG</span>      <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">PIN_ULTRASONIC_ECHO</span>      <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">PIN_LED_R</span>                <span class="o">=</span> <span class="mi">22</span>
+    <span class="n">PIN_LED_G</span>                <span class="o">=</span> <span class="mi">27</span>
+    <span class="n">PIN_LED_B</span>                <span class="o">=</span> <span class="mi">24</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor</span>
@@ -1491,14 +1675,25 @@ following I/O components:</p>
         <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_MOTOR_LEFT_SPEED</span><span class="p">,</span>     <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span>
         <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_MOTOR_RIGHT_SPEED</span><span class="p">,</span>    <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span>
 
-        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_INFRARED_LEFT</span><span class="p">,</span>  <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
-        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_INFRARED_RIGHT</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_INFRARED_LEFT</span><span class="p">,</span>        <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_INFRARED_RIGHT</span><span class="p">,</span>       <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
+
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_SERVO_ULTRASONIC</span><span class="p">,</span>     <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_ULTRASONIC_TRIG</span><span class="p">,</span>      <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_ULTRASONIC_ECHO</span><span class="p">,</span>      <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
+
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_LED_R</span><span class="p">,</span>                <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_LED_G</span><span class="p">,</span>                <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_LED_B</span><span class="p">,</span>                <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_left_speed</span>  <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">PWM</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_MOTOR_LEFT_SPEED</span><span class="p">,</span>  <span class="mi">2000</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_right_speed</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">PWM</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_MOTOR_RIGHT_SPEED</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_left_speed</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_right_speed</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_servo_ultrasonic</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">PWM</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_SERVO_ULTRASONIC</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_servo_ultrasonic</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_set_motion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left_forward</span><span class="p">,</span> <span class="n">left_backward</span><span class="p">,</span>
                     <span class="n">right_forward</span><span class="p">,</span> <span class="n">right_backward</span><span class="p">,</span>
@@ -1546,6 +1741,7 @@ following I/O components:</p>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_left_speed</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_right_speed</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_servo_ultrasonic</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
         <span class="n">GPIO</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">run_forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">speed</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
@@ -1656,15 +1852,75 @@ following I/O components:</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_motion</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span>
                          <span class="n">speed</span><span class="p">,</span> <span class="n">speed</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">obstacle_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sensor</span><span class="o">=</span><span class="s1">&#39;infrared&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">turn_servo_ultrasonic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="s1">&#39;degree&#39;</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="mi">90</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return obstacle status</span>
+<span class="sd">        Turn the servo for ultrasonic sensor</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        * sensor : str</span>
-<span class="sd">            - The sensor to use</span>
-<span class="sd">            (default=&#39;infrared&#39;. Can be &#39;infrared&#39; or &#39;ultrasonic&#39;)</span>
+<span class="sd">        * dir : str</span>
+<span class="sd">            - one of [&#39;left&#39;, &#39;center&#39;, &#39;right&#39;]</span>
+<span class="sd">            - if dir == &#39;degree&#39;, use &lt;degree&gt; parameter</span>
+<span class="sd">        * degrees : int</span>
+<span class="sd">            - [0, 180]</span>
+<span class="sd">            - if &lt;dir&gt; is specified other than &#39;degree&#39;, this is ignored</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># 0 degrees :  duty cycle =  2.5% of 20ms</span>
+        <span class="c1"># 90 degrees:  duty cycle =  7.5% of 20ms</span>
+        <span class="c1"># 180 degrees: duty cycle = 12.5% of 20ms</span>
+        <span class="k">if</span> <span class="nb">dir</span> <span class="o">==</span> <span class="s1">&#39;center&#39;</span><span class="p">:</span>
+            <span class="n">degree</span> <span class="o">=</span> <span class="mi">90</span>
+        <span class="k">elif</span> <span class="nb">dir</span> <span class="o">==</span> <span class="s1">&#39;right&#39;</span><span class="p">:</span>
+            <span class="n">degree</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">elif</span> <span class="nb">dir</span> <span class="o">==</span> <span class="s1">&#39;left&#39;</span><span class="p">:</span>
+            <span class="n">degree</span> <span class="o">=</span> <span class="mi">180</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>  <span class="c1"># do this for multiple times just to make sure</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_servo_ultrasonic</span><span class="o">.</span><span class="n">ChangeDutyCycle</span><span class="p">(</span><span class="mf">2.5</span> <span class="o">+</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">degree</span><span class="o">/</span><span class="mi">180</span><span class="p">)</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>  <span class="c1"># give enough time to settle</span>
+
+    <span class="k">def</span> <span class="nf">distance_from_obstacle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Measure the distance between ultrasonic sensor and the obstacle</span>
+<span class="sd">        that it faces.</span>
+
+<span class="sd">        The obstacle should have a relatively smooth surface for this</span>
+<span class="sd">        to be effective. Distance to fabric or other sound-absorbing</span>
+<span class="sd">        surfaces is difficult to measure.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        * int</span>
+<span class="sd">            - Measured in centimeters: valid range is 2cm to 400cm</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># set HIGH at TRIG for 15us to trigger the ultrasonic ping</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_ULTRASONIC_TRIG</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.000015</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_ULTRASONIC_TRIG</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
+
+        <span class="c1"># wait until echo is received</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_ULTRASONIC_ECHO</span><span class="p">):</span>
+            <span class="k">pass</span>
+
+        <span class="c1"># duration of the ECHO being high is how long the sound travels</span>
+        <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">while</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_ULTRASONIC_ECHO</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">distance</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">t2</span> <span class="o">-</span> <span class="n">t1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">343</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">t2</span><span class="o">-</span><span class="n">t1</span><span class="p">,</span> <span class="n">distance</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">distance</span>
+
+    <span class="k">def</span> <span class="nf">obstacle_status_from_infrared</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return obstacle status obtained by infrared sensors that</span>
+<span class="sd">        are situated at the left front and right front of the Car.</span>
+<span class="sd">        The infrared sensors are located on the lower deck, so they</span>
+<span class="sd">        have a lower view than the ultrasonic sensor.</span>
+
+<span class="sd">        Indicates blockage by obstacle &lt; 20cm away.</span>
+<span class="sd">        Depending on sensitivity of sensors, the distance of obstacles</span>
+<span class="sd">        sometimes needs to be as short as 15cm for effective detection</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1676,13 +1932,81 @@ following I/O components:</p>
         <span class="n">is_right_clear</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_INFRARED_RIGHT</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">is_left_clear</span> <span class="ow">and</span> <span class="n">is_right_clear</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;clear&#39;</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;clear&#39;</span>
         <span class="k">elif</span> <span class="n">is_left_clear</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_right_clear</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;only_right_blocked&#39;</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;only_right_blocked&#39;</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="n">is_left_clear</span> <span class="ow">and</span> <span class="n">is_right_clear</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;only_left_blocked&#39;</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;only_left_blocked&#39;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;blocked&#39;</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;blocked&#39;</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Infrared status = {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">status</span>
+
+    <span class="k">def</span> <span class="nf">obstacle_status_from_ultrasound</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return obstacle status obtained by ultrasonic sensor that is</span>
+<span class="sd">        situated in the front of the Car. The ultrasonic sensor is</span>
+<span class="sd">        located in the upper deck so it has a higher view than the</span>
+<span class="sd">        infrared sensors.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        * dir : str</span>
+<span class="sd">            - set the ultrasonic sensor to face a direction,</span>
+<span class="sd">            one of [&#39;center&#39;, &#39;left&#39;, &#39;right&#39;]. Default is &#39;center&#39;</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        * str</span>
+<span class="sd">            - &#39;blocked&#39; if distance &lt;= 20cm</span>
+<span class="sd">            - &#39;approaching_obstacle&#39; if distance is (20, 50]</span>
+<span class="sd">            - &#39;clear&#39; if distance &gt; 50cm</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">turn_servo_ultrasonic</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span>
+        <span class="n">distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_from_obstacle</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">distance</span> <span class="o">&lt;=</span> <span class="mi">20</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;blocked&#39;</span>
+        <span class="k">elif</span> <span class="n">distance</span> <span class="o">&lt;=</span> <span class="mi">50</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;approaching_obstacle&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;clear&#39;</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Ultrasound status = {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">status</span>
+
+    <span class="k">def</span> <span class="nf">_led_light</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_LED_R</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_LED_G</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_LED_B</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">led_light</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Shine LED light</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        * color : str</span>
+<span class="sd">            - one of [&#39;red&#39;, &#39;green&#39;, &#39;blue&#39;,</span>
+<span class="sd">                      &#39;yellow&#39;, &#39;cyan&#39;, &#39;purple&#39;</span>
+<span class="sd">                      &#39;white&#39;, &#39;off&#39;]</span>
+<span class="sd">        * blink : boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;red&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;green&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;blue&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;yellow&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;cyan&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;purple&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;white&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1708,6 +2032,36 @@ following I/O components:</p>
             </div>
             <div class="item">
             <p id="thinkland_rpi_car.Car.PIN_INFRARED_RIGHT" class="name">var <span class="ident">PIN_INFRARED_RIGHT</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="thinkland_rpi_car.Car.PIN_LED_B" class="name">var <span class="ident">PIN_LED_B</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="thinkland_rpi_car.Car.PIN_LED_G" class="name">var <span class="ident">PIN_LED_G</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="thinkland_rpi_car.Car.PIN_LED_R" class="name">var <span class="ident">PIN_LED_R</span></p>
             
 
             
@@ -1776,6 +2130,36 @@ following I/O components:</p>
 </div>
 
             </div>
+            <div class="item">
+            <p id="thinkland_rpi_car.Car.PIN_SERVO_ULTRASONIC" class="name">var <span class="ident">PIN_SERVO_ULTRASONIC</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="thinkland_rpi_car.Car.PIN_ULTRASONIC_ECHO" class="name">var <span class="ident">PIN_ULTRASONIC_ECHO</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="thinkland_rpi_car.Car.PIN_ULTRASONIC_TRIG" class="name">var <span class="ident">PIN_ULTRASONIC_TRIG</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
           <h3>Static methods</h3>
             
   <div class="item">
@@ -1797,6 +2181,64 @@ following I/O components:</p>
 <span class="sd">    Initialize the Car</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="thinkland_rpi_car.Car.distance_from_obstacle">
+    <p>def <span class="ident">distance_from_obstacle</span>(</p><p>self)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Measure the distance between ultrasonic sensor and the obstacle
+that it faces.</p>
+<p>The obstacle should have a relatively smooth surface for this
+to be effective. Distance to fabric or other sound-absorbing
+surfaces is difficult to measure.</p>
+<h2>Returns</h2>
+<ul>
+<li>int<ul>
+<li>Measured in centimeters: valid range is 2cm to 400cm</li>
+</ul>
+</li>
+</ul></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-thinkland_rpi_car.Car.distance_from_obstacle', this);">Show source &equiv;</a></p>
+  <div id="source-thinkland_rpi_car.Car.distance_from_obstacle" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">distance_from_obstacle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Measure the distance between ultrasonic sensor and the obstacle</span>
+<span class="sd">    that it faces.</span>
+<span class="sd">    The obstacle should have a relatively smooth surface for this</span>
+<span class="sd">    to be effective. Distance to fabric or other sound-absorbing</span>
+<span class="sd">    surfaces is difficult to measure.</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    * int</span>
+<span class="sd">        - Measured in centimeters: valid range is 2cm to 400cm</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># set HIGH at TRIG for 15us to trigger the ultrasonic ping</span>
+    <span class="n">GPIO</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_ULTRASONIC_TRIG</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.000015</span><span class="p">)</span>
+    <span class="n">GPIO</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_ULTRASONIC_TRIG</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
+    <span class="c1"># wait until echo is received</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_ULTRASONIC_ECHO</span><span class="p">):</span>
+        <span class="k">pass</span>
+    <span class="c1"># duration of the ECHO being high is how long the sound travels</span>
+    <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="k">while</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_ULTRASONIC_ECHO</span><span class="p">):</span>
+        <span class="k">pass</span>
+    <span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">distance</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">t2</span> <span class="o">-</span> <span class="n">t1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">343</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">t2</span><span class="o">-</span><span class="n">t1</span><span class="p">,</span> <span class="n">distance</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">distance</span>
 </pre></div>
 
   </div>
@@ -1829,12 +2271,20 @@ following I/O components:</p>
     <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_MOTOR_RIGHT_BACKWARD</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
     <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_MOTOR_LEFT_SPEED</span><span class="p">,</span>     <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span>
     <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_MOTOR_RIGHT_SPEED</span><span class="p">,</span>    <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span>
-    <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_INFRARED_LEFT</span><span class="p">,</span>  <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
-    <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_INFRARED_RIGHT</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
+    <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_INFRARED_LEFT</span><span class="p">,</span>        <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
+    <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_INFRARED_RIGHT</span><span class="p">,</span>       <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
+    <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_SERVO_ULTRASONIC</span><span class="p">,</span>     <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
+    <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_ULTRASONIC_TRIG</span><span class="p">,</span>      <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
+    <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_ULTRASONIC_ECHO</span><span class="p">,</span>      <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
+    <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_LED_R</span><span class="p">,</span>                <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
+    <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_LED_G</span><span class="p">,</span>                <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
+    <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_LED_B</span><span class="p">,</span>                <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_left_speed</span>  <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">PWM</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_MOTOR_LEFT_SPEED</span><span class="p">,</span>  <span class="mi">2000</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_right_speed</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">PWM</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_MOTOR_RIGHT_SPEED</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_left_speed</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_right_speed</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_servo_ultrasonic</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">PWM</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_SERVO_ULTRASONIC</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_servo_ultrasonic</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1844,22 +2294,77 @@ following I/O components:</p>
   
             
   <div class="item">
-    <div class="name def" id="thinkland_rpi_car.Car.obstacle_status">
-    <p>def <span class="ident">obstacle_status</span>(</p><p>self, sensor=&#39;infrared&#39;)</p>
+    <div class="name def" id="thinkland_rpi_car.Car.led_light">
+    <p>def <span class="ident">led_light</span>(</p><p>self, color)</p>
     </div>
     
 
     
   
-    <div class="desc"><p>Return obstacle status</p>
+    <div class="desc"><p>Shine LED light</p>
 <h2>Parameters</h2>
 <ul>
-<li>sensor : str<ul>
-<li>The sensor to use
-(default='infrared'. Can be 'infrared' or 'ultrasonic')</li>
+<li>color : str<ul>
+<li>one of ['red', 'green', 'blue',
+          'yellow', 'cyan', 'purple'
+          'white', 'off']</li>
 </ul>
 </li>
-</ul>
+<li>blink : boolean</li>
+</ul></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-thinkland_rpi_car.Car.led_light', this);">Show source &equiv;</a></p>
+  <div id="source-thinkland_rpi_car.Car.led_light" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">led_light</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Shine LED light</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    * color : str</span>
+<span class="sd">        - one of [&#39;red&#39;, &#39;green&#39;, &#39;blue&#39;,</span>
+<span class="sd">                  &#39;yellow&#39;, &#39;cyan&#39;, &#39;purple&#39;</span>
+<span class="sd">                  &#39;white&#39;, &#39;off&#39;]</span>
+<span class="sd">    * blink : boolean</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;red&#39;</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;green&#39;</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;blue&#39;</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;yellow&#39;</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;cyan&#39;</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;purple&#39;</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;white&#39;</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="thinkland_rpi_car.Car.obstacle_status_from_infrared">
+    <p>def <span class="ident">obstacle_status_from_infrared</span>(</p><p>self)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Return obstacle status obtained by infrared sensors that
+are situated at the left front and right front of the Car.
+The infrared sensors are located on the lower deck, so they
+have a lower view than the ultrasonic sensor.</p>
+<p>Indicates blockage by obstacle &lt; 20cm away.
+Depending on sensitivity of sensors, the distance of obstacles
+sometimes needs to be as short as 15cm for effective detection</p>
 <h2>Returns</h2>
 <ul>
 <li>str<ul>
@@ -1869,16 +2374,17 @@ following I/O components:</p>
 </li>
 </ul></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-thinkland_rpi_car.Car.obstacle_status', this);">Show source &equiv;</a></p>
-  <div id="source-thinkland_rpi_car.Car.obstacle_status" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">obstacle_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sensor</span><span class="o">=</span><span class="s1">&#39;infrared&#39;</span><span class="p">):</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-thinkland_rpi_car.Car.obstacle_status_from_infrared', this);">Show source &equiv;</a></p>
+  <div id="source-thinkland_rpi_car.Car.obstacle_status_from_infrared" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">obstacle_status_from_infrared</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return obstacle status</span>
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    * sensor : str</span>
-<span class="sd">        - The sensor to use</span>
-<span class="sd">        (default=&#39;infrared&#39;. Can be &#39;infrared&#39; or &#39;ultrasonic&#39;)</span>
+<span class="sd">    Return obstacle status obtained by infrared sensors that</span>
+<span class="sd">    are situated at the left front and right front of the Car.</span>
+<span class="sd">    The infrared sensors are located on the lower deck, so they</span>
+<span class="sd">    have a lower view than the ultrasonic sensor.</span>
+<span class="sd">    Indicates blockage by obstacle &lt; 20cm away.</span>
+<span class="sd">    Depending on sensitivity of sensors, the distance of obstacles</span>
+<span class="sd">    sometimes needs to be as short as 15cm for effective detection</span>
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    * str</span>
@@ -1888,13 +2394,83 @@ following I/O components:</p>
     <span class="n">is_left_clear</span>  <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_INFRARED_LEFT</span><span class="p">)</span>
     <span class="n">is_right_clear</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_INFRARED_RIGHT</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">is_left_clear</span> <span class="ow">and</span> <span class="n">is_right_clear</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s1">&#39;clear&#39;</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;clear&#39;</span>
     <span class="k">elif</span> <span class="n">is_left_clear</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_right_clear</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s1">&#39;only_right_blocked&#39;</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;only_right_blocked&#39;</span>
     <span class="k">elif</span> <span class="ow">not</span> <span class="n">is_left_clear</span> <span class="ow">and</span> <span class="n">is_right_clear</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s1">&#39;only_left_blocked&#39;</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;only_left_blocked&#39;</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s1">&#39;blocked&#39;</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;blocked&#39;</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Infrared status = {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">status</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="thinkland_rpi_car.Car.obstacle_status_from_ultrasound">
+    <p>def <span class="ident">obstacle_status_from_ultrasound</span>(</p><p>self, dir=&#39;center&#39;)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Return obstacle status obtained by ultrasonic sensor that is
+situated in the front of the Car. The ultrasonic sensor is
+located in the upper deck so it has a higher view than the
+infrared sensors.</p>
+<h2>Parameters</h2>
+<ul>
+<li>dir : str<ul>
+<li>set the ultrasonic sensor to face a direction,
+one of ['center', 'left', 'right']. Default is 'center'</li>
+</ul>
+</li>
+</ul>
+<h2>Returns</h2>
+<ul>
+<li>str<ul>
+<li>'blocked' if distance &lt;= 20cm</li>
+<li>'approaching_obstacle' if distance is (20, 50]</li>
+<li>'clear' if distance &gt; 50cm</li>
+</ul>
+</li>
+</ul></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-thinkland_rpi_car.Car.obstacle_status_from_ultrasound', this);">Show source &equiv;</a></p>
+  <div id="source-thinkland_rpi_car.Car.obstacle_status_from_ultrasound" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">obstacle_status_from_ultrasound</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return obstacle status obtained by ultrasonic sensor that is</span>
+<span class="sd">    situated in the front of the Car. The ultrasonic sensor is</span>
+<span class="sd">    located in the upper deck so it has a higher view than the</span>
+<span class="sd">    infrared sensors.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    * dir : str</span>
+<span class="sd">        - set the ultrasonic sensor to face a direction,</span>
+<span class="sd">        one of [&#39;center&#39;, &#39;left&#39;, &#39;right&#39;]. Default is &#39;center&#39;</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    * str</span>
+<span class="sd">        - &#39;blocked&#39; if distance &lt;= 20cm</span>
+<span class="sd">        - &#39;approaching_obstacle&#39; if distance is (20, 50]</span>
+<span class="sd">        - &#39;clear&#39; if distance &gt; 50cm</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">turn_servo_ultrasonic</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span>
+    <span class="n">distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_from_obstacle</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">distance</span> <span class="o">&lt;=</span> <span class="mi">20</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;blocked&#39;</span>
+    <span class="k">elif</span> <span class="n">distance</span> <span class="o">&lt;=</span> <span class="mi">50</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;approaching_obstacle&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;clear&#39;</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Ultrasound status = {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">status</span>
 </pre></div>
 
   </div>
@@ -2138,6 +2714,7 @@ following I/O components:</p>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_left_speed</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_right_speed</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_servo_ultrasonic</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
     <span class="n">GPIO</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
 </pre></div>
 
@@ -2235,6 +2812,63 @@ following I/O components:</p>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_set_motion</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span>
                      <span class="n">speed</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="thinkland_rpi_car.Car.turn_servo_ultrasonic">
+    <p>def <span class="ident">turn_servo_ultrasonic</span>(</p><p>self, dir=&#39;degree&#39;, degree=90)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Turn the servo for ultrasonic sensor</p>
+<h2>Parameters</h2>
+<ul>
+<li>dir : str<ul>
+<li>one of ['left', 'center', 'right']</li>
+<li>if dir == 'degree', use <degree> parameter</li>
+</ul>
+</li>
+<li>degrees : int<ul>
+<li>[0, 180]</li>
+<li>if <dir> is specified other than 'degree', this is ignored</li>
+</ul>
+</li>
+</ul></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-thinkland_rpi_car.Car.turn_servo_ultrasonic', this);">Show source &equiv;</a></p>
+  <div id="source-thinkland_rpi_car.Car.turn_servo_ultrasonic" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">turn_servo_ultrasonic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="s1">&#39;degree&#39;</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="mi">90</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Turn the servo for ultrasonic sensor</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    * dir : str</span>
+<span class="sd">        - one of [&#39;left&#39;, &#39;center&#39;, &#39;right&#39;]</span>
+<span class="sd">        - if dir == &#39;degree&#39;, use &lt;degree&gt; parameter</span>
+<span class="sd">    * degrees : int</span>
+<span class="sd">        - [0, 180]</span>
+<span class="sd">        - if &lt;dir&gt; is specified other than &#39;degree&#39;, this is ignored</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># 0 degrees :  duty cycle =  2.5% of 20ms</span>
+    <span class="c1"># 90 degrees:  duty cycle =  7.5% of 20ms</span>
+    <span class="c1"># 180 degrees: duty cycle = 12.5% of 20ms</span>
+    <span class="k">if</span> <span class="nb">dir</span> <span class="o">==</span> <span class="s1">&#39;center&#39;</span><span class="p">:</span>
+        <span class="n">degree</span> <span class="o">=</span> <span class="mi">90</span>
+    <span class="k">elif</span> <span class="nb">dir</span> <span class="o">==</span> <span class="s1">&#39;right&#39;</span><span class="p">:</span>
+        <span class="n">degree</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">elif</span> <span class="nb">dir</span> <span class="o">==</span> <span class="s1">&#39;left&#39;</span><span class="p">:</span>
+        <span class="n">degree</span> <span class="o">=</span> <span class="mi">180</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>  <span class="c1"># do this for multiple times just to make sure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_servo_ultrasonic</span><span class="o">.</span><span class="n">ChangeDutyCycle</span><span class="p">(</span><span class="mf">2.5</span> <span class="o">+</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">degree</span><span class="o">/</span><span class="mi">180</span><span class="p">)</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>  <span class="c1"># give enough time to settle</span>
 </pre></div>
 
   </div>
