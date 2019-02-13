@@ -512,6 +512,9 @@ class Car:
 
     @staticmethod
     def demo_line_tracking(speed=50):
+        """
+        Demonstrates the line tracking mode using the line tracking sensor
+        """
         time.sleep(2)
         car = Car()
         try:
