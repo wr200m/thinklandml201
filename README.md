@@ -9,6 +9,10 @@ Look for *.m.html for each module
 
 ## Demos
 ### A cruising car avoiding obstacles using infrared+ultrasound
+```python
+Car.demo_cruising()
 ```
-python car.py
+### Line tracking mode
+```python
+Car.demo_line_tracking(speed=50)
 ```
