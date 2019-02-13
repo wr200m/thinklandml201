@@ -38,6 +38,12 @@ class Car:
     PIN_LED_R                = 22
     PIN_LED_G                = 27
     PIN_LED_B                = 24
+
+    PIN_TRACK_1              = 3   # counting From left, 1
+    PIN_TRACK_2              = 5   # 2
+    PIN_TRACK_3              = 4   # 3
+    PIN_TRACK_4              = 18  # 4
+
     def __init__(self):
         """
         Constructor
@@ -70,6 +76,11 @@ class Car:
         GPIO.setup(Car.PIN_LED_R,                GPIO.OUT)
         GPIO.setup(Car.PIN_LED_G,                GPIO.OUT)
         GPIO.setup(Car.PIN_LED_B,                GPIO.OUT)
+
+        GPIO.setup(Car.PIN_TRACK_1,              GPIO.IN)
+        GPIO.setup(Car.PIN_TRACK_2,              GPIO.IN)
+        GPIO.setup(Car.PIN_TRACK_3,              GPIO.IN)
+        GPIO.setup(Car.PIN_TRACK_4,              GPIO.IN)
 
         self._pwm_left_speed  = GPIO.PWM(Car.PIN_MOTOR_LEFT_SPEED,  2000)
         self._pwm_right_speed = GPIO.PWM(Car.PIN_MOTOR_RIGHT_SPEED, 2000)
@@ -392,6 +403,71 @@ class Car:
         else:
             self._led_light(GPIO.LOW, GPIO.LOW, GPIO.LOW)
 
+    def line_tracking_turn_type(self):
+        """
+        Indicates the type of turn required given current sensor values
+
+        Returns
+        -------
+        * str
+            - one of ['sharp_left_turn', 'sharp_right_turn',
+                      'regular_left_turn', 'regular_right_turn',
+                      'smooth_left', 'smooth_right',
+                      'straight', 'no_line']
+        """
+        s1_dark = GPIO.input(Car.PIN_TRACK_1) == GPIO.LOW
+        s2_dark = GPIO.input(Car.PIN_TRACK_2) == GPIO.LOW
+        s3_dark = GPIO.input(Car.PIN_TRACK_3) == GPIO.LOW
+        s4_dark = GPIO.input(Car.PIN_TRACK_4) == GPIO.LOW
+
+        if s1_dark and (s3_dark and s4_dark):
+            #   1    2    3    4
+            # Dark XXXX Dark Dark
+            # Dark XXXX Dark Lite
+            # Dark XXXX Lite Dark
+            # Requires a sharp left turn (line bends at right or acute angle)
+            turn = 'sharp_left_turn'
+        elif (s1_dark or s2_dark) and s4_dark:
+            #   1    2    3    4
+            # Dark Dark XXXX Dark
+            # Lite Dark XXXX Dark
+            # Dark Lite XXXX Dark
+            # Requires a sharp right turn (line bends at right or acute angle)
+            turn = 'sharp_right_turn'
+        elif s1_dark:
+            #   1    2    3    4
+            # Dark XXXX XXXX XXXX
+            # Requires a regular left turn (line bends at obtuse angle)
+            turn = 'regular_left_turn'
+        elif s4_dark:
+            #   1    2    3    4
+            # XXXX XXXX XXXX Dark
+            # Requires a regular right turn (line bends at obtuse angle)
+            turn = 'regular_right_turn'
+        elif s2_dark and not s3_dark:
+            #   1    2    3    4
+            # XXXX Dark Lite XXXX
+            # Requires a smooth curve to the left (car veers off to the right)
+            turn = 'smooth_left'
+        elif not s2_dark and s3_dark:
+            #   1    2    3    4
+            # XXXX Lite Dark XXXX
+            # Requires a smooth curve to the right (car veers off to the left)
+            turn = 'smooth_right'
+        elif s2_dark and s3_dark:
+            #   1    2    3    4
+            # XXXX Dark Dark XXXX
+            # Requires going straight
+            turn = 'straight'
+        else:
+            #   1    2    3    4
+            # Lite Lite Lite Lite
+            # Requires maintaining the previous movement
+            turn = 'no_line'
+
+        print('Turn type = {}'.format(turn))
+        return turn
+
     @staticmethod
     def demo_cruising():
         """
@@ -434,9 +510,35 @@ class Car:
         except KeyboardInterrupt:
             car.stop_completely()
 
+    @staticmethod
+    def demo_line_tracking(speed=50):
+        time.sleep(2)
+        car = Car()
+        try:
+            car.init()
+            while True:
+                turn = car.line_tracking_turn_type()
+                if turn == 'straight':
+                    car.run_forward(speed=speed)
+                elif turn == 'smooth_left':
+                    car.turn_left(speed=speed * 0.75)
+                elif turn == 'smooth_right':
+                    car.turn_right(speed=speed * 0.75)
+                elif turn == 'regular_left_turn':
+                    car.spin_left(speed=speed * 0.75)
+                elif turn == 'regular_right_turn':
+                    car.spin_right(speed=speed * 0.75)
+                elif turn == 'sharp_left_turn':
+                    car.spin_left(speed=speed)
+                elif turn == 'sharp_right_turn':
+                    car.spin_right(speed=speed)
+        except KeyboardInterrupt:
+            car.stop_completely()
+
 
 def main():
     Car.demo_cruising()
+
 
 if __name__ == '__main__':
     main()

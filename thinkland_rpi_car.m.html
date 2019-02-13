@@ -1058,9 +1058,11 @@ table {
   <ul>
     <li class="mono"><a href="#thinkland_rpi_car.Car.__init__">__init__</a></li>
     <li class="mono"><a href="#thinkland_rpi_car.Car.demo_cruising">demo_cruising</a></li>
+    <li class="mono"><a href="#thinkland_rpi_car.Car.demo_line_tracking">demo_line_tracking</a></li>
     <li class="mono"><a href="#thinkland_rpi_car.Car.distance_from_obstacle">distance_from_obstacle</a></li>
     <li class="mono"><a href="#thinkland_rpi_car.Car.init">init</a></li>
     <li class="mono"><a href="#thinkland_rpi_car.Car.led_light">led_light</a></li>
+    <li class="mono"><a href="#thinkland_rpi_car.Car.line_tracking_turn_type">line_tracking_turn_type</a></li>
     <li class="mono"><a href="#thinkland_rpi_car.Car.obstacle_status_from_infrared">obstacle_status_from_infrared</a></li>
     <li class="mono"><a href="#thinkland_rpi_car.Car.obstacle_status_from_ultrasound">obstacle_status_from_ultrasound</a></li>
     <li class="mono"><a href="#thinkland_rpi_car.Car.run_forward">run_forward</a></li>
@@ -1134,6 +1136,12 @@ table {
     <span class="n">PIN_LED_R</span>                <span class="o">=</span> <span class="mi">22</span>
     <span class="n">PIN_LED_G</span>                <span class="o">=</span> <span class="mi">27</span>
     <span class="n">PIN_LED_B</span>                <span class="o">=</span> <span class="mi">24</span>
+
+    <span class="n">PIN_TRACK_1</span>              <span class="o">=</span> <span class="mi">3</span>   <span class="c1"># counting From left, 1</span>
+    <span class="n">PIN_TRACK_2</span>              <span class="o">=</span> <span class="mi">5</span>   <span class="c1"># 2</span>
+    <span class="n">PIN_TRACK_3</span>              <span class="o">=</span> <span class="mi">4</span>   <span class="c1"># 3</span>
+    <span class="n">PIN_TRACK_4</span>              <span class="o">=</span> <span class="mi">18</span>  <span class="c1"># 4</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor</span>
@@ -1166,6 +1174,11 @@ table {
         <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_LED_R</span><span class="p">,</span>                <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
         <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_LED_G</span><span class="p">,</span>                <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
         <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_LED_B</span><span class="p">,</span>                <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
+
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_TRACK_1</span><span class="p">,</span>              <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_TRACK_2</span><span class="p">,</span>              <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_TRACK_3</span><span class="p">,</span>              <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_TRACK_4</span><span class="p">,</span>              <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_left_speed</span>  <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">PWM</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_MOTOR_LEFT_SPEED</span><span class="p">,</span>  <span class="mi">2000</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_right_speed</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">PWM</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_MOTOR_RIGHT_SPEED</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
@@ -1488,6 +1501,71 @@ table {
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">line_tracking_turn_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Indicates the type of turn required given current sensor values</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        * str</span>
+<span class="sd">            - one of [&#39;sharp_left_turn&#39;, &#39;sharp_right_turn&#39;,</span>
+<span class="sd">                      &#39;regular_left_turn&#39;, &#39;regular_right_turn&#39;,</span>
+<span class="sd">                      &#39;smooth_left&#39;, &#39;smooth_right&#39;,</span>
+<span class="sd">                      &#39;straight&#39;, &#39;no_line&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s1_dark</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_TRACK_1</span><span class="p">)</span> <span class="o">==</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span>
+        <span class="n">s2_dark</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_TRACK_2</span><span class="p">)</span> <span class="o">==</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span>
+        <span class="n">s3_dark</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_TRACK_3</span><span class="p">)</span> <span class="o">==</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span>
+        <span class="n">s4_dark</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_TRACK_4</span><span class="p">)</span> <span class="o">==</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span>
+
+        <span class="k">if</span> <span class="n">s1_dark</span> <span class="ow">and</span> <span class="p">(</span><span class="n">s3_dark</span> <span class="ow">and</span> <span class="n">s4_dark</span><span class="p">):</span>
+            <span class="c1">#   1    2    3    4</span>
+            <span class="c1"># Dark XXXX Dark Dark</span>
+            <span class="c1"># Dark XXXX Dark Lite</span>
+            <span class="c1"># Dark XXXX Lite Dark</span>
+            <span class="c1"># Requires a sharp left turn (line bends at right or acute angle)</span>
+            <span class="n">turn</span> <span class="o">=</span> <span class="s1">&#39;sharp_left_turn&#39;</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">s1_dark</span> <span class="ow">or</span> <span class="n">s2_dark</span><span class="p">)</span> <span class="ow">and</span> <span class="n">s4_dark</span><span class="p">:</span>
+            <span class="c1">#   1    2    3    4</span>
+            <span class="c1"># Dark Dark XXXX Dark</span>
+            <span class="c1"># Lite Dark XXXX Dark</span>
+            <span class="c1"># Dark Lite XXXX Dark</span>
+            <span class="c1"># Requires a sharp right turn (line bends at right or acute angle)</span>
+            <span class="n">turn</span> <span class="o">=</span> <span class="s1">&#39;sharp_right_turn&#39;</span>
+        <span class="k">elif</span> <span class="n">s1_dark</span><span class="p">:</span>
+            <span class="c1">#   1    2    3    4</span>
+            <span class="c1"># Dark XXXX XXXX XXXX</span>
+            <span class="c1"># Requires a regular left turn (line bends at obtuse angle)</span>
+            <span class="n">turn</span> <span class="o">=</span> <span class="s1">&#39;regular_left_turn&#39;</span>
+        <span class="k">elif</span> <span class="n">s4_dark</span><span class="p">:</span>
+            <span class="c1">#   1    2    3    4</span>
+            <span class="c1"># XXXX XXXX XXXX Dark</span>
+            <span class="c1"># Requires a regular right turn (line bends at obtuse angle)</span>
+            <span class="n">turn</span> <span class="o">=</span> <span class="s1">&#39;regular_right_turn&#39;</span>
+        <span class="k">elif</span> <span class="n">s2_dark</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">s3_dark</span><span class="p">:</span>
+            <span class="c1">#   1    2    3    4</span>
+            <span class="c1"># XXXX Dark Lite XXXX</span>
+            <span class="c1"># Requires a smooth curve to the left (car veers off to the right)</span>
+            <span class="n">turn</span> <span class="o">=</span> <span class="s1">&#39;smooth_left&#39;</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">s2_dark</span> <span class="ow">and</span> <span class="n">s3_dark</span><span class="p">:</span>
+            <span class="c1">#   1    2    3    4</span>
+            <span class="c1"># XXXX Lite Dark XXXX</span>
+            <span class="c1"># Requires a smooth curve to the right (car veers off to the left)</span>
+            <span class="n">turn</span> <span class="o">=</span> <span class="s1">&#39;smooth_right&#39;</span>
+        <span class="k">elif</span> <span class="n">s2_dark</span> <span class="ow">and</span> <span class="n">s3_dark</span><span class="p">:</span>
+            <span class="c1">#   1    2    3    4</span>
+            <span class="c1"># XXXX Dark Dark XXXX</span>
+            <span class="c1"># Requires going straight</span>
+            <span class="n">turn</span> <span class="o">=</span> <span class="s1">&#39;straight&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1">#   1    2    3    4</span>
+            <span class="c1"># Lite Lite Lite Lite</span>
+            <span class="c1"># Requires maintaining the previous movement</span>
+            <span class="n">turn</span> <span class="o">=</span> <span class="s1">&#39;no_line&#39;</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Turn type = {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">turn</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">turn</span>
+
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">demo_cruising</span><span class="p">():</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1530,9 +1608,35 @@ table {
         <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
             <span class="n">car</span><span class="o">.</span><span class="n">stop_completely</span><span class="p">()</span>
 
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">demo_line_tracking</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">car</span> <span class="o">=</span> <span class="n">Car</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">car</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="n">turn</span> <span class="o">=</span> <span class="n">car</span><span class="o">.</span><span class="n">line_tracking_turn_type</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">turn</span> <span class="o">==</span> <span class="s1">&#39;straight&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">run_forward</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="n">speed</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">turn</span> <span class="o">==</span> <span class="s1">&#39;smooth_left&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">turn_left</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="n">speed</span> <span class="o">*</span> <span class="mf">0.75</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">turn</span> <span class="o">==</span> <span class="s1">&#39;smooth_right&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">turn_right</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="n">speed</span> <span class="o">*</span> <span class="mf">0.75</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">turn</span> <span class="o">==</span> <span class="s1">&#39;regular_left_turn&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">spin_left</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="n">speed</span> <span class="o">*</span> <span class="mf">0.75</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">turn</span> <span class="o">==</span> <span class="s1">&#39;regular_right_turn&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">spin_right</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="n">speed</span> <span class="o">*</span> <span class="mf">0.75</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">turn</span> <span class="o">==</span> <span class="s1">&#39;sharp_left_turn&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">spin_left</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="n">speed</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">turn</span> <span class="o">==</span> <span class="s1">&#39;sharp_right_turn&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">spin_right</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="n">speed</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+            <span class="n">car</span><span class="o">.</span><span class="n">stop_completely</span><span class="p">()</span>
+
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="n">Car</span><span class="o">.</span><span class="n">demo_cruising</span><span class="p">()</span>
+
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
@@ -1623,6 +1727,12 @@ following I/O components:</p>
     <span class="n">PIN_LED_R</span>                <span class="o">=</span> <span class="mi">22</span>
     <span class="n">PIN_LED_G</span>                <span class="o">=</span> <span class="mi">27</span>
     <span class="n">PIN_LED_B</span>                <span class="o">=</span> <span class="mi">24</span>
+
+    <span class="n">PIN_TRACK_1</span>              <span class="o">=</span> <span class="mi">3</span>   <span class="c1"># counting From left, 1</span>
+    <span class="n">PIN_TRACK_2</span>              <span class="o">=</span> <span class="mi">5</span>   <span class="c1"># 2</span>
+    <span class="n">PIN_TRACK_3</span>              <span class="o">=</span> <span class="mi">4</span>   <span class="c1"># 3</span>
+    <span class="n">PIN_TRACK_4</span>              <span class="o">=</span> <span class="mi">18</span>  <span class="c1"># 4</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor</span>
@@ -1655,6 +1765,11 @@ following I/O components:</p>
         <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_LED_R</span><span class="p">,</span>                <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
         <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_LED_G</span><span class="p">,</span>                <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
         <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_LED_B</span><span class="p">,</span>                <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
+
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_TRACK_1</span><span class="p">,</span>              <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_TRACK_2</span><span class="p">,</span>              <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_TRACK_3</span><span class="p">,</span>              <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_TRACK_4</span><span class="p">,</span>              <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_left_speed</span>  <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">PWM</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_MOTOR_LEFT_SPEED</span><span class="p">,</span>  <span class="mi">2000</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_right_speed</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">PWM</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_MOTOR_RIGHT_SPEED</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
@@ -1977,6 +2092,71 @@ following I/O components:</p>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">line_tracking_turn_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Indicates the type of turn required given current sensor values</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        * str</span>
+<span class="sd">            - one of [&#39;sharp_left_turn&#39;, &#39;sharp_right_turn&#39;,</span>
+<span class="sd">                      &#39;regular_left_turn&#39;, &#39;regular_right_turn&#39;,</span>
+<span class="sd">                      &#39;smooth_left&#39;, &#39;smooth_right&#39;,</span>
+<span class="sd">                      &#39;straight&#39;, &#39;no_line&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s1_dark</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_TRACK_1</span><span class="p">)</span> <span class="o">==</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span>
+        <span class="n">s2_dark</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_TRACK_2</span><span class="p">)</span> <span class="o">==</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span>
+        <span class="n">s3_dark</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_TRACK_3</span><span class="p">)</span> <span class="o">==</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span>
+        <span class="n">s4_dark</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_TRACK_4</span><span class="p">)</span> <span class="o">==</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span>
+
+        <span class="k">if</span> <span class="n">s1_dark</span> <span class="ow">and</span> <span class="p">(</span><span class="n">s3_dark</span> <span class="ow">and</span> <span class="n">s4_dark</span><span class="p">):</span>
+            <span class="c1">#   1    2    3    4</span>
+            <span class="c1"># Dark XXXX Dark Dark</span>
+            <span class="c1"># Dark XXXX Dark Lite</span>
+            <span class="c1"># Dark XXXX Lite Dark</span>
+            <span class="c1"># Requires a sharp left turn (line bends at right or acute angle)</span>
+            <span class="n">turn</span> <span class="o">=</span> <span class="s1">&#39;sharp_left_turn&#39;</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">s1_dark</span> <span class="ow">or</span> <span class="n">s2_dark</span><span class="p">)</span> <span class="ow">and</span> <span class="n">s4_dark</span><span class="p">:</span>
+            <span class="c1">#   1    2    3    4</span>
+            <span class="c1"># Dark Dark XXXX Dark</span>
+            <span class="c1"># Lite Dark XXXX Dark</span>
+            <span class="c1"># Dark Lite XXXX Dark</span>
+            <span class="c1"># Requires a sharp right turn (line bends at right or acute angle)</span>
+            <span class="n">turn</span> <span class="o">=</span> <span class="s1">&#39;sharp_right_turn&#39;</span>
+        <span class="k">elif</span> <span class="n">s1_dark</span><span class="p">:</span>
+            <span class="c1">#   1    2    3    4</span>
+            <span class="c1"># Dark XXXX XXXX XXXX</span>
+            <span class="c1"># Requires a regular left turn (line bends at obtuse angle)</span>
+            <span class="n">turn</span> <span class="o">=</span> <span class="s1">&#39;regular_left_turn&#39;</span>
+        <span class="k">elif</span> <span class="n">s4_dark</span><span class="p">:</span>
+            <span class="c1">#   1    2    3    4</span>
+            <span class="c1"># XXXX XXXX XXXX Dark</span>
+            <span class="c1"># Requires a regular right turn (line bends at obtuse angle)</span>
+            <span class="n">turn</span> <span class="o">=</span> <span class="s1">&#39;regular_right_turn&#39;</span>
+        <span class="k">elif</span> <span class="n">s2_dark</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">s3_dark</span><span class="p">:</span>
+            <span class="c1">#   1    2    3    4</span>
+            <span class="c1"># XXXX Dark Lite XXXX</span>
+            <span class="c1"># Requires a smooth curve to the left (car veers off to the right)</span>
+            <span class="n">turn</span> <span class="o">=</span> <span class="s1">&#39;smooth_left&#39;</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">s2_dark</span> <span class="ow">and</span> <span class="n">s3_dark</span><span class="p">:</span>
+            <span class="c1">#   1    2    3    4</span>
+            <span class="c1"># XXXX Lite Dark XXXX</span>
+            <span class="c1"># Requires a smooth curve to the right (car veers off to the left)</span>
+            <span class="n">turn</span> <span class="o">=</span> <span class="s1">&#39;smooth_right&#39;</span>
+        <span class="k">elif</span> <span class="n">s2_dark</span> <span class="ow">and</span> <span class="n">s3_dark</span><span class="p">:</span>
+            <span class="c1">#   1    2    3    4</span>
+            <span class="c1"># XXXX Dark Dark XXXX</span>
+            <span class="c1"># Requires going straight</span>
+            <span class="n">turn</span> <span class="o">=</span> <span class="s1">&#39;straight&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1">#   1    2    3    4</span>
+            <span class="c1"># Lite Lite Lite Lite</span>
+            <span class="c1"># Requires maintaining the previous movement</span>
+            <span class="n">turn</span> <span class="o">=</span> <span class="s1">&#39;no_line&#39;</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Turn type = {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">turn</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">turn</span>
+
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">demo_cruising</span><span class="p">():</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -2016,6 +2196,31 @@ following I/O components:</p>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">car</span><span class="o">.</span><span class="n">led_light</span><span class="p">(</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
                         <span class="n">car</span><span class="o">.</span><span class="n">spin_right</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+            <span class="n">car</span><span class="o">.</span><span class="n">stop_completely</span><span class="p">()</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">demo_line_tracking</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">car</span> <span class="o">=</span> <span class="n">Car</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">car</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="n">turn</span> <span class="o">=</span> <span class="n">car</span><span class="o">.</span><span class="n">line_tracking_turn_type</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">turn</span> <span class="o">==</span> <span class="s1">&#39;straight&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">run_forward</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="n">speed</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">turn</span> <span class="o">==</span> <span class="s1">&#39;smooth_left&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">turn_left</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="n">speed</span> <span class="o">*</span> <span class="mf">0.75</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">turn</span> <span class="o">==</span> <span class="s1">&#39;smooth_right&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">turn_right</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="n">speed</span> <span class="o">*</span> <span class="mf">0.75</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">turn</span> <span class="o">==</span> <span class="s1">&#39;regular_left_turn&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">spin_left</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="n">speed</span> <span class="o">*</span> <span class="mf">0.75</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">turn</span> <span class="o">==</span> <span class="s1">&#39;regular_right_turn&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">spin_right</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="n">speed</span> <span class="o">*</span> <span class="mf">0.75</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">turn</span> <span class="o">==</span> <span class="s1">&#39;sharp_left_turn&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">spin_left</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="n">speed</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">turn</span> <span class="o">==</span> <span class="s1">&#39;sharp_right_turn&#39;</span><span class="p">:</span>
+                    <span class="n">car</span><span class="o">.</span><span class="n">spin_right</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="n">speed</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
             <span class="n">car</span><span class="o">.</span><span class="n">stop_completely</span><span class="p">()</span>
 </pre></div>
@@ -2152,6 +2357,46 @@ following I/O components:</p>
 
             </div>
             <div class="item">
+            <p id="thinkland_rpi_car.Car.PIN_TRACK_1" class="name">var <span class="ident">PIN_TRACK_1</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="thinkland_rpi_car.Car.PIN_TRACK_2" class="name">var <span class="ident">PIN_TRACK_2</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="thinkland_rpi_car.Car.PIN_TRACK_3" class="name">var <span class="ident">PIN_TRACK_3</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="thinkland_rpi_car.Car.PIN_TRACK_4" class="name">var <span class="ident">PIN_TRACK_4</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
             <p id="thinkland_rpi_car.Car.PIN_ULTRASONIC_ECHO" class="name">var <span class="ident">PIN_ULTRASONIC_ECHO</span></p>
             
 
@@ -2264,6 +2509,49 @@ following I/O components:</p>
   
             
   <div class="item">
+    <div class="name def" id="thinkland_rpi_car.Car.demo_line_tracking">
+    <p>def <span class="ident">demo_line_tracking</span>(</p><p>speed=50)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-thinkland_rpi_car.Car.demo_line_tracking', this);">Show source &equiv;</a></p>
+  <div id="source-thinkland_rpi_car.Car.demo_line_tracking" class="source">
+    <div class="codehilite"><pre><span></span><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">demo_line_tracking</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">car</span> <span class="o">=</span> <span class="n">Car</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">car</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">turn</span> <span class="o">=</span> <span class="n">car</span><span class="o">.</span><span class="n">line_tracking_turn_type</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">turn</span> <span class="o">==</span> <span class="s1">&#39;straight&#39;</span><span class="p">:</span>
+                <span class="n">car</span><span class="o">.</span><span class="n">run_forward</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="n">speed</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">turn</span> <span class="o">==</span> <span class="s1">&#39;smooth_left&#39;</span><span class="p">:</span>
+                <span class="n">car</span><span class="o">.</span><span class="n">turn_left</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="n">speed</span> <span class="o">*</span> <span class="mf">0.75</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">turn</span> <span class="o">==</span> <span class="s1">&#39;smooth_right&#39;</span><span class="p">:</span>
+                <span class="n">car</span><span class="o">.</span><span class="n">turn_right</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="n">speed</span> <span class="o">*</span> <span class="mf">0.75</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">turn</span> <span class="o">==</span> <span class="s1">&#39;regular_left_turn&#39;</span><span class="p">:</span>
+                <span class="n">car</span><span class="o">.</span><span class="n">spin_left</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="n">speed</span> <span class="o">*</span> <span class="mf">0.75</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">turn</span> <span class="o">==</span> <span class="s1">&#39;regular_right_turn&#39;</span><span class="p">:</span>
+                <span class="n">car</span><span class="o">.</span><span class="n">spin_right</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="n">speed</span> <span class="o">*</span> <span class="mf">0.75</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">turn</span> <span class="o">==</span> <span class="s1">&#39;sharp_left_turn&#39;</span><span class="p">:</span>
+                <span class="n">car</span><span class="o">.</span><span class="n">spin_left</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="n">speed</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">turn</span> <span class="o">==</span> <span class="s1">&#39;sharp_right_turn&#39;</span><span class="p">:</span>
+                <span class="n">car</span><span class="o">.</span><span class="n">spin_right</span><span class="p">(</span><span class="n">speed</span><span class="o">=</span><span class="n">speed</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="n">car</span><span class="o">.</span><span class="n">stop_completely</span><span class="p">()</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
     <div class="name def" id="thinkland_rpi_car.Car.distance_from_obstacle">
     <p>def <span class="ident">distance_from_obstacle</span>(</p><p>self)</p>
     </div>
@@ -2353,6 +2641,10 @@ surfaces is difficult to measure.</p>
     <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_LED_R</span><span class="p">,</span>                <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
     <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_LED_G</span><span class="p">,</span>                <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
     <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_LED_B</span><span class="p">,</span>                <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
+    <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_TRACK_1</span><span class="p">,</span>              <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
+    <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_TRACK_2</span><span class="p">,</span>              <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
+    <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_TRACK_3</span><span class="p">,</span>              <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
+    <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_TRACK_4</span><span class="p">,</span>              <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_left_speed</span>  <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">PWM</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_MOTOR_LEFT_SPEED</span><span class="p">,</span>  <span class="mi">2000</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_right_speed</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">PWM</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_MOTOR_RIGHT_SPEED</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_pwm_left_speed</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -2414,6 +2706,97 @@ surfaces is difficult to measure.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_led_light</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">,</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="thinkland_rpi_car.Car.line_tracking_turn_type">
+    <p>def <span class="ident">line_tracking_turn_type</span>(</p><p>self)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Indicates the type of turn required given current sensor values</p>
+<h2>Returns</h2>
+<ul>
+<li>str<ul>
+<li>one of ['sharp_left_turn', 'sharp_right_turn',
+          'regular_left_turn', 'regular_right_turn',
+          'smooth_left', 'smooth_right',
+          'straight', 'no_line']</li>
+</ul>
+</li>
+</ul></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-thinkland_rpi_car.Car.line_tracking_turn_type', this);">Show source &equiv;</a></p>
+  <div id="source-thinkland_rpi_car.Car.line_tracking_turn_type" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">line_tracking_turn_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Indicates the type of turn required given current sensor values</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    * str</span>
+<span class="sd">        - one of [&#39;sharp_left_turn&#39;, &#39;sharp_right_turn&#39;,</span>
+<span class="sd">                  &#39;regular_left_turn&#39;, &#39;regular_right_turn&#39;,</span>
+<span class="sd">                  &#39;smooth_left&#39;, &#39;smooth_right&#39;,</span>
+<span class="sd">                  &#39;straight&#39;, &#39;no_line&#39;]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">s1_dark</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_TRACK_1</span><span class="p">)</span> <span class="o">==</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span>
+    <span class="n">s2_dark</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_TRACK_2</span><span class="p">)</span> <span class="o">==</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span>
+    <span class="n">s3_dark</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_TRACK_3</span><span class="p">)</span> <span class="o">==</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span>
+    <span class="n">s4_dark</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">Car</span><span class="o">.</span><span class="n">PIN_TRACK_4</span><span class="p">)</span> <span class="o">==</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span>
+    <span class="k">if</span> <span class="n">s1_dark</span> <span class="ow">and</span> <span class="p">(</span><span class="n">s3_dark</span> <span class="ow">and</span> <span class="n">s4_dark</span><span class="p">):</span>
+        <span class="c1">#   1    2    3    4</span>
+        <span class="c1"># Dark XXXX Dark Dark</span>
+        <span class="c1"># Dark XXXX Dark Lite</span>
+        <span class="c1"># Dark XXXX Lite Dark</span>
+        <span class="c1"># Requires a sharp left turn (line bends at right or acute angle)</span>
+        <span class="n">turn</span> <span class="o">=</span> <span class="s1">&#39;sharp_left_turn&#39;</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">s1_dark</span> <span class="ow">or</span> <span class="n">s2_dark</span><span class="p">)</span> <span class="ow">and</span> <span class="n">s4_dark</span><span class="p">:</span>
+        <span class="c1">#   1    2    3    4</span>
+        <span class="c1"># Dark Dark XXXX Dark</span>
+        <span class="c1"># Lite Dark XXXX Dark</span>
+        <span class="c1"># Dark Lite XXXX Dark</span>
+        <span class="c1"># Requires a sharp right turn (line bends at right or acute angle)</span>
+        <span class="n">turn</span> <span class="o">=</span> <span class="s1">&#39;sharp_right_turn&#39;</span>
+    <span class="k">elif</span> <span class="n">s1_dark</span><span class="p">:</span>
+        <span class="c1">#   1    2    3    4</span>
+        <span class="c1"># Dark XXXX XXXX XXXX</span>
+        <span class="c1"># Requires a regular left turn (line bends at obtuse angle)</span>
+        <span class="n">turn</span> <span class="o">=</span> <span class="s1">&#39;regular_left_turn&#39;</span>
+    <span class="k">elif</span> <span class="n">s4_dark</span><span class="p">:</span>
+        <span class="c1">#   1    2    3    4</span>
+        <span class="c1"># XXXX XXXX XXXX Dark</span>
+        <span class="c1"># Requires a regular right turn (line bends at obtuse angle)</span>
+        <span class="n">turn</span> <span class="o">=</span> <span class="s1">&#39;regular_right_turn&#39;</span>
+    <span class="k">elif</span> <span class="n">s2_dark</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">s3_dark</span><span class="p">:</span>
+        <span class="c1">#   1    2    3    4</span>
+        <span class="c1"># XXXX Dark Lite XXXX</span>
+        <span class="c1"># Requires a smooth curve to the left (car veers off to the right)</span>
+        <span class="n">turn</span> <span class="o">=</span> <span class="s1">&#39;smooth_left&#39;</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">s2_dark</span> <span class="ow">and</span> <span class="n">s3_dark</span><span class="p">:</span>
+        <span class="c1">#   1    2    3    4</span>
+        <span class="c1"># XXXX Lite Dark XXXX</span>
+        <span class="c1"># Requires a smooth curve to the right (car veers off to the left)</span>
+        <span class="n">turn</span> <span class="o">=</span> <span class="s1">&#39;smooth_right&#39;</span>
+    <span class="k">elif</span> <span class="n">s2_dark</span> <span class="ow">and</span> <span class="n">s3_dark</span><span class="p">:</span>
+        <span class="c1">#   1    2    3    4</span>
+        <span class="c1"># XXXX Dark Dark XXXX</span>
+        <span class="c1"># Requires going straight</span>
+        <span class="n">turn</span> <span class="o">=</span> <span class="s1">&#39;straight&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1">#   1    2    3    4</span>
+        <span class="c1"># Lite Lite Lite Lite</span>
+        <span class="c1"># Requires maintaining the previous movement</span>
+        <span class="n">turn</span> <span class="o">=</span> <span class="s1">&#39;no_line&#39;</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Turn type = {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">turn</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">turn</span>
 </pre></div>
 
   </div>
