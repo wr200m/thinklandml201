@@ -10,9 +10,11 @@ Look for *.m.html for each module
 ## Demos
 ### A cruising car avoiding obstacles using infrared+ultrasound
 ```python
+from thinkland_rpi_car import Car
 Car.demo_cruising()
 ```
 ### Line tracking mode
 ```python
+from thinkland_rpi_car import Car
 Car.demo_line_tracking(speed=50)
 ```
